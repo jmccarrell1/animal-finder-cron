@@ -1,5 +1,5 @@
 const logger = (module.exports = require('winston'));
-
+logger.level = 'debug';
 logger.format(
   logger.format.combine(
     logger.format.timestamp(),
@@ -25,7 +25,7 @@ logger.add(
 logger.add(
   new logger.transports.Console({
     name: 'debug-console',
-    level: 'info',
+    level: 'debug',
     handleExceptions: true,
     humanReadableUnhandledException: true,
     stderrLevels: ['error'],
