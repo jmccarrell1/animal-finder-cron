@@ -1,9 +1,8 @@
 require('./mongoose');
 
-const Context = {
+const AnimalDbContext = {
   Animal: require('./models/animal'),
-  Type: require('./models/type'),
   Organization: require('./models/organization'),
 };
 
-module.exports = Context;
+module.exports = AnimalDbContext;

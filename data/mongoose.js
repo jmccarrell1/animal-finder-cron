@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const logger = require('../components/logger');
+const logger = require('../modules/logger');
 
 const mongoDB = process.env.MONGODB_URI;
 mongoose.set('useFindAndModify', false);

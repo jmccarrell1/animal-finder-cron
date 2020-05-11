@@ -1,26 +1,25 @@
 const cron = require('cron');
-const logger = require('../components/logger');
+const logger = require('../modules/logger');
 const PetFinderCron = require('./pet-finder');
-const context = require('../data/dbContext');
-const authenticate = require('../components/authenticate');
+const dbContext = require('../data/animalDbContext');
+const httpContext = require('../modules/sync/pet-finder/httpContext');
+const authenticate = require('../modules/sync/pet-finder/authenticate');
 
 function initJobs() {
   const job = new cron.CronJob({
-    cronTime: '* 1 * * * *',
+    cronTime: '* * 1 * * *',
     onTick: async function () {
-      logger.info(`cron fire ${Date.now()}...`);
-      const syncEntities = [
-        require('../components/sync/pet-finder/organization'),
-      ];
+      const entitiesToSync = [require('../modules/sync/pet-finder/animal')];
       const petFinderCron = new PetFinderCron(
-        context,
+        dbContext,
+        httpContext,
         logger,
         authenticate,
-        syncEntities
+        entitiesToSync
       );
       await petFinderCron.start();
     },
-    runOnInit: true,
+    runOnInit: false,
   });
   job.start();
 }

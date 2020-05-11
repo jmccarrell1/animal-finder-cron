@@ -1,30 +1,41 @@
 require('dotenv').config();
 
 class PetFinderCron {
-  constructor(dataContext, logger, authenticate, syncEntities) {
-    this.dataContext = dataContext;
+  sourceId = 'petfinder';
+
+  constructor(dbContext, httpContext, logger, authenticate, entitiesToSync) {
+    this.dbContext = dbContext;
+    this.httpContext = httpContext;
     this.logger = logger;
     this.authenticate = authenticate;
-    this.syncEntities = syncEntities;
+    this.entitiesToSync = entitiesToSync;
   }
 
   async start() {
     let objectEntity;
     let entity;
 
-    for (let index = 0; index < this.syncEntities.length; index++) {
+    this.logger.info(`PetFinderCron starting ${Date.now()}...`);
+
+    for (let index = 0; index < this.entitiesToSync.length; index++) {
       try {
-        objectEntity = this.syncEntities[index];
+        objectEntity = this.entitiesToSync[index];
         entity = new objectEntity(
-          this.dataContext,
+          this.dbContext,
+          this.httpContext,
+          this.sourceId,
           this.logger,
           this.authenticate
         );
         await entity.sync();
       } catch (error) {
-        this.error(`error processing ${objectEntity}: ${error}`);
+        this.logger.error(
+          `error running PetFinderCron: ${objectEntity}: ${error}`
+        );
       }
     }
+
+    this.logger.info(`PetFinderCron stopping ${Date.now()}...`);
   }
 }
 

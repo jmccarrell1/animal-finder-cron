@@ -1,28 +1,16 @@
 const axios = require('axios');
 
 class PetFinderEntity {
-  baseUrl = 'https://api.petfinder.com';
-
-  constructor(logger, authenticate, context) {
+  constructor(dbContext, httpContext, sourceId, logger, authenticate) {
+    this.sourceId = sourceId;
     this.logger = logger;
     this.authenticate = authenticate;
-    this.context = context;
+    this.dbContext = dbContext;
+    this.httpContext = httpContext;
   }
 
-  append(url, key, value) {
-    if (value) {
-      url.searchParams.set(key, value);
-    }
-  }
-
-  appendMeta(url, meta) {
-    this.append(url, 'page', meta.page);
-    this.append(url, 'limit', meta.limit);
-    this.append(url, 'sort', meta.sort);
-  }
-
-  async processPages(url, func) {
-    const searchParams = new URLSearchParams(url.searchParams);
+  async processPageSets(httpFunc, processResponseFunc) {
+    const searchParams = new URLSearchParams(httpFunc.url.searchParams);
     const startPage = searchParams.get('page');
 
     let page = startPage === null ? 1 : startPage;
@@ -31,7 +19,7 @@ class PetFinderEntity {
 
     while (page > 0) {
       try {
-        response = await axios.get(url.href, url);
+        response = await httpFunc.get();
 
         if (response) {
           if (page === '1' && response.data.pagination) {
@@ -40,14 +28,14 @@ class PetFinderEntity {
             );
           }
 
-          meta = await func(response, this.context);
+          meta = await processResponseFunc(response, this.dbContext);
 
           this.logger.info(
-            `current page: ${page} | processed: ${meta.recordCount} | errors: ${meta.errorCount}`
+            `page url: ${url} | page #: ${page} | processed: ${meta.recordCount} | errors: ${meta.errorCount}`
           );
 
           page = this.getNextPage(response.data);
-          url.searchParams.set('page', page);
+          httpFunc.url.searchParams.set('page', page);
         } else {
           page = 0;
         }
@@ -56,7 +44,7 @@ class PetFinderEntity {
       }
     }
 
-    this.logger.info('done');
+    this.logger.info('page processing complete');
   }
 
   getNextPage(data) {
