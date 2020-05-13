@@ -11,7 +11,7 @@ const logger = createLogger({
 
 logger.add(
   new transports.File({
-    filename: 'animal-service.log',
+    filename: 'animal-cron.log',
     level: 'info',
     maxsize: '104857600',
     maxFiles: 5,

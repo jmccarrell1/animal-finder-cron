@@ -7,7 +7,7 @@ const authenticate = require('../modules/sync/pet-finder/authenticate');
 
 function initJobs() {
   const job = new cron.CronJob({
-    cronTime: '* * 1 * * *',
+    cronTime: '* * 3 * * *',
     onTick: async function () {
       const entitiesToSync = [require('../modules/sync/pet-finder/animal')];
       const petFinderCron = new PetFinderCron(

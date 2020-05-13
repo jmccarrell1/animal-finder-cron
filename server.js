@@ -1,5 +1,5 @@
 const app = require('./app');
-const logger = require('./components/logger');
+const logger = require('./modules/logger');
 
 let port = 3001;
 
